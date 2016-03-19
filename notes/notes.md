@@ -31,3 +31,19 @@ There are other frameworks: ReactJS Ember ViewJS.  Angular's been around for a w
 
 Many of these downsides are solved in Angular 2
 
+## Web Server
+
+Ryan uses http server.  Some lightweight web server.  I'm using Node and express.
+
+**Important** Express serves a static folder which is where all our frontent files need to be located.  In the course, Ryan loads Angular and other JS libraries from the node-modules folder.  In my case, that's outside of /public.  **So, just copy the required libraries from node_modules into /public/js/vendor.
+
+## Dependencies
+
+We can install this stuff with NPM?!  That's fantastic.
+
+Packages we need:
+
+1.  Angular: `npm install angular`
+2.  Angular Material (Material Design) and Material Design Icons: `npm install angular-material mdi`
+
+

@@ -47,3 +47,15 @@ Packages we need:
 2.  Angular Material (Material Design) and Material Design Icons: `npm install angular-material mdi`
 
 
+## IIFE
+
+Immediately Invoked Function Expressions.  Scopes all our javascript to the files were creating them in, to avoid polluting the global namespace.
+
+```javascript
+(function() {
+    
+    'use strict';
+    
+    
+})();
+```

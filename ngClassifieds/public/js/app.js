@@ -10,8 +10,8 @@ angular
     
     .config(function ($mdThemingProvider) {
         $mdThemingProvider.theme('default')
-            .primaryPalette('teal')
-            .accentPalette('orange');
+            .primaryPalette('amber')
+            .accentPalette('brown');
     })
 
     .directive('helloWorld', function () {

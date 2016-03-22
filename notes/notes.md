@@ -59,3 +59,7 @@ Immediately Invoked Function Expressions.  Scopes all our javascript to the file
     
 })();
 ```
+
+## Angular Material comes with some services
+
+For example, `$mdSidenav` which lets us control angular material's sidenav component.

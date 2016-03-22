@@ -6,7 +6,8 @@
         <link href="css/materialdesignicons.min.css" type="text/css" rel="stylesheet" media="all" />
         <link href="css/style.css" type="text/css" rel="stylesheet" />
     </head>
-    <body ng-app="ngClassifieds" ng-controller="classifiedsCtrl">
+     <body layout="column" ng-app="ngClassifieds"
+          ng-controller="classifiedsCtrl" ng-cloak>
         
         <md-toolbar>
             <div class="md-toolbar-tools">
@@ -19,50 +20,55 @@
             </div>
         </md-toolbar>
         
-        <md-sidenav class="md-sidenav-left md-whiteframe-6dp"
-                    md-component-id="left">
+        <md-sidenav class="md-sidenav-left md-whiteframe-6dp" md-component-id="left">
             <md-toolbar>
                 <h1 class="md-toolbar-tools">Add a Classified</h1>
             </md-toolbar>
             
-            <md-content layout-padding>
+            <md-content class="md-padding">
                 <form>
                     <!-- INPUTS -->
-                    <md-input-container>
-                        <label for="title">Title</label>
-                        <input type="text" id="title"
-                               ng-model="classified.title"
-                               md-autofocus>
-                    </md-input-container>
-                    <md-input-container>
-                        <label for="price">Price</label>
-                        <input type="text" id="price"
-                               ng-model="classified.price">
-                    </md-input-container>
-                    <md-input-container>
-                        <label for="description">Description</label>
-                        <input type="text" id="description"
-                               ng-model="classified.description">
-                    </md-input-container>
-                    <md-input-container>
-                        <label for="image">Image Link</label>
-                        <input type="text" id="image"
-                               ng-model="classified.image">
-                    </md-input-container>
+                    <div layout="column">
+                        <md-input-container>
+                            <label for="title">Title</label>
+                            <input type="text" id="title"
+                                   ng-model="classified.title"
+                                   md-autofocus>
+                        </md-input-container>
+                        <md-input-container>
+                            <label for="price">Price</label>
+                            <input type="text" id="price"
+                                   ng-model="classified.price">
+                        </md-input-container>
+                        <md-input-container>
+                            <label for="description">Description</label>
+                            <input type="text" id="description"
+                                   ng-model="classified.description">
+                        </md-input-container>
+                        <md-input-container>
+                            <label for="image">Image Link</label>
+                            <input type="text" id="image"
+                                   ng-model="classified.image">
+                        </md-input-container>
+                    </div>
+                
                     <!-- BUTTONS -->
-                    <md-button class="md-primary"
-                               ng-if="!editing"
-                               ng-click="saveClassified(classified)">
-                        Save
-                    </md-button>
-                    <md-button class="md-primary"
-                               ng-if="editing"
-                               ng-click="saveEdit(classified)">
-                        Save Edit
-                    </md-button>
-                    <md-button ng-click="closeSidebar()" class="md-warn">
-                        Cancel
-                    </md-button>
+                    <div layout="row">
+                        <md-button class="md-primary"
+                                   ng-if="!editing"
+                                   ng-click="saveClassified(classified)">
+                            Save
+                        </md-button>
+                        <md-button class="md-primary"
+                                   ng-if="editing"
+                                   ng-click="saveEdit(classified)">
+                            Save Edit
+                        </md-button>
+                        <md-button ng-click="closeSidebar()" class="md-warn">
+                            Cancel
+                        </md-button>
+                    </div>
+                    
                 </form>
             </md-content>        
         </md-sidenav>

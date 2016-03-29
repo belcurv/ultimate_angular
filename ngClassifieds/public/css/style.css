@@ -1,5 +1,9 @@
 /* style */
 
+body {
+    
+}
+
 button .material-icons {
     margin-top: 7px;
 }
@@ -8,4 +12,8 @@ md-card img{   /* workaround for Chrome image stretching */
     width: 100%;
     height: auto;
     min-height: 0px;
+}
+
+.change-my-css {
+  overflow: auto;
 }

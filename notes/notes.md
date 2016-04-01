@@ -65,3 +65,40 @@ Immediately Invoked Function Expressions.  Scopes all our javascript to the file
 For example, `$mdSidenav` which lets us control angular material's sidenav component.
 
 `$mdToast` service pops up little confirmation dialog boxes upon user action (clicking a button for example).
+
+
+## Angular Animate
+
+We just need to write some CSS that taps into some class hooks provided by Angular.
+
+Angular's main CSS hooks:
+1.  ng-enter
+2.  ng-move
+3.  ng-leave
+
+We first add our own class to the elements we want to animate (the `<md-card>` that contains our looped classifieds).  We'll say `class="classified"`.  Then we add a bunch of CSS selectors:
+
+```
+.classified.ng-enter, .classified.ng-move {
+    transition: 0.4s all;
+    opacity: 0;
+}
+
+.classified.ng-enter.ng-enter-active, .classified.ng-move.ng-move-active {
+    opacity: 1;
+}
+
+.classified.ng-leave {
+    animation: 0.4s fade_classified;
+    
+}
+
+@keyframes fade_classified {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+```
+
+## Routing
+
+Lecture uses **ui-router**.  

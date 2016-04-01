@@ -115,10 +115,11 @@
 
             <!-- CONTENT -->
             <md-content class="md-padding" layout="row" layout-wrap>
-                <md-card ng-repeat="classified in classifieds |
+                <md-card flex="30"
+                         class="classified"
+                         ng-repeat="classified in classifieds |
                                     filter: classifiedsFilter |
-                                    filter: category"
-                         flex="30">
+                                    filter: category">
                     <img ng-src="{{ classified.image }}" alt="" />
                     <md-card-content>
                         <div class="classified-info" ng-show="!showContact">

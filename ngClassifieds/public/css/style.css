@@ -14,7 +14,7 @@ md-card img{   /* workaround for Chrome image stretching */
     min-height: 0px;
 }
 
-.change-my-css {
+.firefox-needs-this {
   overflow: auto;
 }
 

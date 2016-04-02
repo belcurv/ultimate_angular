@@ -9,56 +9,67 @@
     
         .controller('classifiedsCtrl', function ($scope, $http, classifiedsFactory, $mdSidenav, $mdToast, $mdDialog) {
         
+            var vm = this,
+                contact = {         // fake logged-in user info
+                    name: "Phoney McRingring",
+                    phone: "555-555-5555",
+                    email: "phoney@ringring.com"
+                };
+            
+            vm.categories;
+            vm.classified;
+            vm.classifieds;
+            vm.closeSidebar     = closeSidebar;
+            vm.deleteClassified = deleteClassified;
+            vm.editing;
+            vm.editClassified   = editClassified;
+            vm.openSidebar      = openSidebar;
+            vm.saveClassified   = saveClassified;
+            vm.saveEdit         = saveEdit;
+            
+
             classifiedsFactory.getClassifieds()
                 .then(function (classifieds) {
                     // populate classifies after async completes
-                    $scope.classifieds = classifieds.data;
+                    vm.classifieds = classifieds.data;
                 
                     // populate categories after async completes
-                    $scope.categories = getCategories($scope.classifieds);
+                    vm.categories = getCategories(vm.classifieds);
                 });
         
-            var contact = {         // fake logged-in user info
-                name: "Phoney McRingring",
-                phone: "555-555-5555",
-                email: "phoney@ringring.com"
-            };
         
-            
-        
-            $scope.openSidebar = function () {
+            function openSidebar() {
                 $mdSidenav('left').open();
-            };
+            }
         
-            $scope.closeSidebar = function () {
+            function closeSidebar() {
                 $mdSidenav('left').close();
-            };
+            }
         
-            $scope.saveClassified = function (classified) {
+            function saveClassified(classified) {
                 if (classified) {
                     classified.contact = contact;  // give passed classified our fake contact
-                    $scope.classifieds.push(classified);
-                    $scope.classified = {};        // clear form fields
-                    $scope.closeSidebar();         // close sidebar when done
+                    vm.classifieds.push(classified);
+                    vm.classified = {};            // clear form fields
+                    closeSidebar();                // close sidebar when done
                     showToast('Classified saved');
                 }
-                
-            };
+            }
         
-            $scope.editClassified = function (classified) {
-                $scope.editing = true;   // used in DOM to show/hide appropriate buttons
-                $scope.openSidebar();
-                $scope.classified = classified;  // form classified = classified
-            };
+            function editClassified(classified) {
+                vm.editing = true;   // used in DOM to show/hide appropriate buttons
+                openSidebar();
+                vm.classified = classified;  // form classified = classified
+            }
         
-            $scope.saveEdit = function () {
-                $scope.editing = false;
-                $scope.classified = {};
-                $scope.closeSidebar();
+            function saveEdit() {
+                vm.editing = false;
+                vm.classified = {};
+                closeSidebar();
                 showToast('Edits saved');
-            };
+            }
         
-            $scope.deleteClassified = function (event, classified) {
+            function deleteClassified(event, classified) {
                 // first, setup the 'confirm' dialog
                 var confirm = $mdDialog.confirm()
                     // Short description of what you're about to do:
@@ -75,15 +86,14 @@
                 $mdDialog.show(confirm).then(function () {
                     // trigger on 'yes': delete the classified.
                     // first, find the index of the passed classified in our array
-                    var index = $scope.classifieds.indexOf(classified);
+                    var index = vm.classifieds.indexOf(classified);
                     // then splice it out!
-                    $scope.classifieds.splice(index, 1);
+                    vm.classifieds.splice(index, 1);
                 }, function () {
                     // terigger on 'cancel'
                     
                 });
-                
-            };
+            }
         
             function showToast(message) {
                 $mdToast.show(

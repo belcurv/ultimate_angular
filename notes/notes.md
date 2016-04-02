@@ -102,3 +102,200 @@ We first add our own class to the elements we want to animate (the `<md-card>` t
 ## Routing
 
 Lecture uses **ui-router**.  
+
+SPAs load one single URL.  So traditional bookmarking, linking, etc doesn't work.  Say we wated to send someone a link to a specific classified listing.  Routing solves this.
+
+The ngRoute built-in API is limited.  Omits a lot of features that a good router would need.  Thus Angular community built ui-router.
+
+ui-router provides state-based routing.
+
+Traditional round-trip website, each link = a unique page.  Moving through a site = loading new pages.
+
+State based routing is more like a desktop application.  You might have a contact list state, an add contact state, and edit contact state, a search state, etc.  Everything is based on states of the application - what state are we in now?
+
+ui-router merges the concept of linking (like traditional sites) with the concept of different state within a SPA.
+
+ui-router gives us
+
+1.  `$stateProvider` = lets us set up various states for the app.  Takes a method `.state` which takes two arguments: the 'name of the state', and a object of the state's properties.  Looks like this:
+    ```
+        $stateProvider
+            .state('nameOfState1', {
+                url: '/urlOfState1',
+                template: (or templateUrl: )
+            })
+            .state('nameOfState2', {
+                url: '/urlOfState2',
+                template: (or templateUrl: )
+            });
+        
+    ```
+
+The add the view placeholder, either as:
+```
+    <ui-view></ui-view>
+```
+Or a DIV with the attribute:
+```
+    <div ui-view></div>
+```
+
+Then we use ui-sref to link to different view templates.  Like this
+```
+    <md-button ui-sref="nameOfState1">Go to state 1.</md-button>
+    <md-button ui-sref="nameOfState2">Go to state 2.</md-button>
+    <ui-view></ui-view>
+```
+
+And ui-router updated the URL in the browser, and inserts the template into the view.
+
+Ui-router gives us **nested states**.  Looks like this:
+
+In `app.js`:
+```
+    $stateProvider
+        .state('one', {
+            url: '/stateone',
+            template: '<h1>State One</h1>'
+        })
+        .state('two', {
+            url: '/statetwo',
+            template: '<h1>State Two</h1> <md-button ui-sref="two.more">Go to nested state</md-button><ui-view></ui-view>'
+        })
+        .state('two.more', {
+            url: '/more',
+            template: '<p>This is teh deeper state.</p>'
+        });
+```
+
+Nothing changes in the view!  Because the new button to trigger the nested state is created within the state two template!  Navigating to the nested state results in URL:
+```
+   http://localhost:3000/#/statetwo/more
+```
+        
+You can see how this can be useful.
+
+Ui-router can attach different controllers to different states.  For example:
+```
+    $stateProvider
+        .state('one', {
+            url: '/stateone',
+            template: '<h1>{{ message }}</h1>',
+            controller: 'stateOneCtrl'
+        });
+    
+    })
+
+    .controller('stateOneCtrl', function ($scope) {
+        $scope.message = 'Hey from state one!';
+    });
+```
+
+## Switching to _Controller as_
+
+Using $scope is fine, but gets confusing once our app gets large and we have multiple controllers in play.  Often, controllers will have similar variables and methods.  You might have confusing-to-look-at view markup like this:
+```
+    <div ng-controller="ctrlOne">
+        {{ message }}
+    </div>
+    <div ng-controller="ctrlTwo">
+        {{ message }}
+    </div>
+```
+That's difficult to reason about.
+
+So instead we use a dotted object notation with _controller as_.  First we give the controller an **alias**, in this case: '_stateOneCtrl as **stateone**_'.  Then in the controller, instead of using _$state.message_, we bind the message to '_**this**.message_'.  Finally, in the template we prepend our variable with the controller alias '_**stateone**.message_':
+```
+    $stateProvider
+        .state('one', {
+            url: '/stateone',
+            template: '<h1>{{ stateone.message }}</h1>',
+            controller: 'stateOneCtrl as stateone'
+        });
+        
+    .controller('stateOneCtrl', function () {
+        this.message = 'Hey from state one!';
+    });
+```
+Note that we no longer need to inject $scope into the controller.  This helps us avoid what's known as '$scope soup' in Angular.  Instead, we can be explicit about which controllers are attached to which properties in our templates.
+
+Taking it one step further, let's add a _capture variable_ in our controller:
+```
+    .controller('stateOneCtrl', function () {
+        var vm = this;
+        vm.message = 'Hey from state one!';
+    });
+```
+We use `vm`, a popular capture variable that stands for 'view model'.
+
+## Refactoring our Classifieds App
+
+We'll start with one route:
+```
+angular
+    
+    .module('ngClassifieds', ['ngMaterial', 'ui.router'])
+    
+    .config(function ($mdThemingProvider, $stateProvider) {
+    
+        $mdThemingProvider.theme('default')
+            .primaryPalette('amber')
+            .accentPalette('brown');
+    
+        $stateProvider
+            .state('classifieds', {
+                url: '/classifieds',
+                templateUrl: 'components/classifieds/classifieds.tpl.html',
+                controller: 'classifiedsCtrl as vm'
+            });
+    
+    });
+```
+
+We'll butcher our previous index.html file...
+
+1.  We don't need `ng-controller="classifiedsCtrl"` anymore because we specify controllers in our routes.
+2.  We'll cut/paste everything in between the `<body>` tags except for the `<script>` calls, inserting it into our new template: `js/components/classifieds/classifieds.tpl.html` (this is an odd location, but whatever)
+3.  Then add `<ui-view></ui-view>` elements to index.html.
+4.  Then we hack our controller apart to employ capture variable:
+    ```
+        var vm = this;
+    ```
+5.  Best practice for controllers is to declare all of object (vm) members up top pointing to functions and properties down below.  For example, instead of attaching methods to $scope like this:
+    ```
+        $scope.closeSidebar = function () {
+            $mdSidenav('left').close();
+        };
+    ```
+    We will now do this:
+    ```
+        // up top...
+        vm.closeSidebar = closeSidebar;
+        
+        // then down below...
+        function closeSidebar () {
+            $mdSidenav('left').close();
+        };
+    ```
+    This makes it very easy to see what our controllers are doing.  Right up top is a list!
+    ```
+        .controller('classifiedsCtrl', function ($http,
+        classifiedsFactory, $mdSidenav, $mdToast, $mdDialog) {
+        
+        var vm = this;
+        
+        // attach the member functions
+        vm.openSidebar    = openSidebar;
+        vm.closeSidebar   = closeSidebar;
+        vm.saveClassified = saveClassified;
+        vm.editClassified = editClassified;
+        vm.saveEdit       = saveEdit;
+        
+        // write the functions
+        function openSidebar = function () {
+            $mdSidenav('left').open();
+        };
+
+        // etc, etc.
+    ```
+    

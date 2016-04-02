@@ -6,16 +6,19 @@
 
 angular
     
-    .module('ngClassifieds', ['ngMaterial', 'ngAnimate', 'ngAria'])
+    .module('ngClassifieds', ['ngMaterial', 'ui.router'])
     
-    .config(function ($mdThemingProvider) {
+    .config(function ($mdThemingProvider, $stateProvider) {
+    
         $mdThemingProvider.theme('default')
             .primaryPalette('amber')
             .accentPalette('brown');
-    })
-
-    .directive('helloWorld', function () {
-        return {
-            template: '<h1> {{ message }} </h1>'
-        }
+    
+        $stateProvider
+            .state('classifieds', {
+                url: '/classifieds',
+                templateUrl: 'js/components/classifieds/classifieds.tpl.html',
+                controller: 'classifiedsCtrl as vm'
+            });
+    
     });

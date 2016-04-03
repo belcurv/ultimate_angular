@@ -7,14 +7,9 @@
         .module('ngClassifieds')    // this is just a reference to our main module
                                     // that we've already created.
     
-        .controller('classifiedsCtrl', function ($scope, $state, $http, classifiedsFactory, $mdSidenav, $mdToast, $mdDialog) {
+        .controller('classifiedsCtrl', function ($scope, $state, $http, $stateParams, classifiedsFactory, $mdSidenav, $mdToast, $mdDialog) {
         
-            var vm = this,
-                contact = {         // fake logged-in user info
-                    name: "Phoney McRingring",
-                    phone: "555-555-5555",
-                    email: "phoney@ringring.com"
-                };
+            var vm = this;
             
             vm.categories;
             vm.classified;
@@ -37,6 +32,15 @@
                     vm.categories = getCategories(vm.classifieds);
                 });
         
+            $scope.$on('newClassified', function (event, classified) {
+                classified.id = vm.classifieds.length + 1;  // faking the ID for now...
+                vm.classifieds.push(classified);
+                showToast('Classified saved!');
+            });
+        
+            $scope.$on('editSaved', function (event, message) {
+                showToast(message);
+            });
         
             function openSidebar() {
                 // $mdSidenav('left').open();    // used prior to ui-router
@@ -59,9 +63,14 @@
             }
         
             function editClassified(classified) {
-                vm.editing = true;   // used in DOM to show/hide appropriate buttons
-                openSidebar();
-                vm.classified = classified;  // form classified = classified
+                // vm.editing = true;             // used prior to ui-router
+                // openSidebar();                 // and separate controllers
+                // vm.classified = classified;    // and templates.
+
+                $state.go('classifieds.edit', {   // We pass an object to ui-router
+                    id: classified.id,            // containing the id we want to edit,
+                    classified: classified        // plus the whole classified
+                });
             }
         
             function saveEdit() {

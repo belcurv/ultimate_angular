@@ -43,9 +43,9 @@
 <!-- END SEARCH FILTERS -->
 
 <!-- FIREFOX FLEXBOX SCROLLBAR FIX -->
-<div class="firefox-needs-this">
+<div layout="column" class="firefox-needs-this">
 
-    <ui-view></ui-view>  <!-- Nested substate view -->
+    <ui-view ></ui-view>  <!-- Nested substate Sidenav view -->
 
     <!-- CONTENT -->
     <md-content class="md-padding" layout="row" layout-wrap>
@@ -112,6 +112,11 @@
 
             </md-card-content>
         </md-card>
+        
+        <pre>
+        {{ vm.classifieds | json }}
+        </pre>
+        
     </md-content>
     <!-- END CONTENT -->
 

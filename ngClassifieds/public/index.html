@@ -12,7 +12,8 @@
     </head>
     <body layout="column" ng-app="ngClassifieds">
 
-        <ui-view></ui-view>
+        <!-- Firefox needs overflow:auto here as well as in the template! -->
+        <ui-view layout="column" class="firefox-needs-this"></ui-view>
         
         <!-- load javascript -->
         <script src="js/vendor/angular.js"             ></script>
@@ -25,7 +26,8 @@
         <script src="js/app.js"                        ></script>
         <script src="js/components/classifieds/classifieds.ctr.js" ></script>
         <script src="js/components/classifieds/classifieds.fac.js" ></script>
-        <script src="js/components/classifieds/new/classifieds.new.ctr.js" ></script>
+        <script src="js/components/classifieds/new/classifieds.new.ctr.js"  ></script>
+        <script src="js/components/classifieds/edit/classifieds.edit.ctr.js"></script>
         
     </body>
 </html>

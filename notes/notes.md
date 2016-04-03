@@ -378,3 +378,125 @@ But this doesn't work.  We have to encapsulate `$mdSidenav.open` inside Angular'
 
     })();
 ```
+
+## Setting up Watchers
+
+The .watch() method is a $scope feature that keeps a look out for changes to something and responds in ways we define.  We'll use $scope.watch to close the new sidebar route.
+
+Why are we using $scope again now that we're binding properties and methods directly to controllers (controll as)?  Because there are certain properties of the $scope object that are only available to us via the actual $scope object.  Because we're binding everything to the 'this' keyword, we really only use $scope for specific special features only it provides.
+
+We're going to set this up inside `newClassifiedsCtrl`.  Here's a demo example where we setup a watcher to log a message to the console if some value becomes equal to 2:
+```
+    (function () {
+
+        'use strict';
+
+        angular
+            .module('ngClassifieds')
+            .controller('newClassifiedsCtrl', function ($scope,
+                $mdSidenav, $timeout, $mdDialog,
+                classifiedsFactory) {
+
+            var vm = this;
+
+            $timeout(function () {
+                $mdSidenav('left').open();
+            });
+            
+            $scope.$watch('vm.valueToChange', function (value) {
+                if(value === 2) {
+                    console.log('value changed to 2');
+                }
+            });
+            
+            vm.valueToChange = 1;
+            
+            $timeout(function() {
+                vm.valueToChange = 2;
+            }, 2000);
+
+        });
+
+    })();
+```
+## Emitting Data
+
+How can we communicate date between separate controllers?  Again we will use some Angular $scope features.
+
+**$scope.$on** - This is basically a listener.  Invocations look like this:
+```
+    $scope.$on('myMessage', function(event, message) {
+        console.log(message);
+    })
+```
+That says, "on receipt of myMessage, trigger callback with _event_ and _message_".
+
+The .$on method is used in conjunction with either broadcasters or emitters, which are used to send messages between scopes:
+
+1.  **$scope.$broadcast** - Broadcasters are used to send data down to child scopes.
+2.  **$scope.$emit** - Emitters are used to send data up to parent scopes from a child scope.
+
+Our newClassifieds controller is a child of our main classidies controller, so we'll use emit there.  And we'll create a $scope.$on(); listener in the main classifieds controller to listen for the emitter.
+
+
+## Editing Data with Route Params
+
+Our editClassifieds controller is also a child of main classifieds controller, but instead of using $scope.$broadcast (what I expected Ryan would suggest) we're going to use a feature of ui-router that lets us pass data from one route to another.  ui-router gives us the ability to send data through URL paramters.
+
+We provide these parameters as an object, the 2nd argument in the $state.go function:
+```
+    function editClassified(classified) {
+        $state.go('classifieds.edit', {
+            id: classified.id,
+            classified: classified
+        });
+    }
+```
+Then we tweak the route slightly.  Since we want the URL to include the /id of the classified we want to edit, we append the variable `/:id` to the utl peroperty:
+```
+    .state('classifieds.edit', {
+        url: '/edit/:id',
+        templateUrl: 'js/components/classifieds/edit/classifieds.edit.tpl.html',
+        controller : 'editClassifiedsCtrl as vm',
+        params: {
+            classified: null     // initialize this parameter as null
+        }
+    });
+```
+Then we have to tweak the editClassifieds template - we need to append 'vm.' to our bound variables wherever we're using ng-model:
+```
+<!-- INPUTS -->
+    <div layout="column">
+        <md-input-container>
+            <label for="title">Title</label>
+            <input type="text" id="title"
+                   ng-model="vm.classified.title"
+                   md-autofocus>
+        </md-input-container>
+        <md-input-container>
+            <label for="price">Price</label>
+            <input type="text" id="price"
+                   ng-model="vm.classified.price">
+        </md-input-container>
+        <md-input-container>
+            <label for="description">Description</label>
+            <input type="text" id="description"
+                   ng-model="vm.classified.description">
+        </md-input-container>
+        <md-input-container>
+            <label for="image">Image Link</label>
+            <input type="text" id="image"
+                   ng-model="vm.classified.image">
+        </md-input-container>
+    </div>
+```
+Then we need to grab the classified object from our ui-router state params and include it in the editClassifieds controller:
+```
+    .controller('editClassifiedsCtrl', function ($scope, $state,
+        $mdSidenav, $timeout, $mdDialog, classifiedsFactory) {
+
+        var vm = this;
+        vm.closeSidebar = closeSidebar;
+        vm.saveClassified = saveClassified;
+        vm.classified = $state.params.classified;   // <- new!
+```

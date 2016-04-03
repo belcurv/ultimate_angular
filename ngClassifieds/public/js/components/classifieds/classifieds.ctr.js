@@ -7,7 +7,7 @@
         .module('ngClassifieds')    // this is just a reference to our main module
                                     // that we've already created.
     
-        .controller('classifiedsCtrl', function ($scope, $http, classifiedsFactory, $mdSidenav, $mdToast, $mdDialog) {
+        .controller('classifiedsCtrl', function ($scope, $state, $http, classifiedsFactory, $mdSidenav, $mdToast, $mdDialog) {
         
             var vm = this,
                 contact = {         // fake logged-in user info
@@ -39,7 +39,9 @@
         
         
             function openSidebar() {
-                $mdSidenav('left').open();
+                // $mdSidenav('left').open();    // used prior to ui-router
+                $state.go('classifieds.new');    // tells ui-router to go to classifieds.new
+                                                 // state when button is clicked
             }
         
             function closeSidebar() {

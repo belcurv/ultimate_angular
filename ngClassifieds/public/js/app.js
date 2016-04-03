@@ -19,6 +19,12 @@ angular
                 url: '/classifieds',
                 templateUrl: 'js/components/classifieds/classifieds.tpl.html',
                 controller: 'classifiedsCtrl as vm'
+            })
+        
+            .state('classifieds.new', {
+                url: '/new',
+                templateUrl: 'js/components/classifieds/new/classifieds.new.tpl.html',
+                controller: 'newClassifiedsCtrl as vm'
             });
     
     });

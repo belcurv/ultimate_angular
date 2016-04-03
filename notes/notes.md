@@ -298,4 +298,83 @@ We'll butcher our previous index.html file...
 
         // etc, etc.
     ```
-    
+
+## Refactoring New and Edit features
+
+We're going to add routes to states for adding new classifieds and editing existing classifieds.  We'll move the markup into separate templates and add controllers.
+
+With nested states, Angular knows when a state name is a substate through dot notation:
+```
+    $stateProvider
+        .state('classifieds', {
+            url: '/classifieds',
+            templateUrl: 'js/components/classifieds/classifieds.tpl.html',
+            controller: 'classifiedsCtrl as vm'
+        })
+
+        .state('classifieds.new', {   // ** the '.new' substate tells Angular to append
+            url: '/new',              // '/new' to the above 'classifieds' state.
+            templateUrl: 'blah/blah/classifieds.new.tpl.html',
+            controller: 'newClassifiedsCtrl as vm'
+    });
+```
+
+Because there's new controllers, don't forget to include them when pulling in scripts in index.html.
+```
+    <script src="js/components/classifieds/new/classifieds.new.ctr.js"></script>
+```
+
+Then, we have to inject a new ui-router service into our main controller: $state.  The $state service is responsible for representing states as well as transitioning between them.  Since we need to transition between classifieds and classifieds.new, we need to use $state.  
+
+We use it where we define the `openSidebar()` function.  Instead of having the button open the sidenav directly:
+```
+    function openSidebar() {
+        $mdSidenav('left').open();
+    }
+```
+... we tell it to navigate to a new state (_classifieds.new_) when the button is clicked:
+```
+    function openSidebar() {
+        $state.go('classifieds.new');    
+    }
+```
+
+And of course we have to write the new controller _newClassifiedsCtrl_:
+
+```
+    (function () {
+
+        'use strict';
+
+        angular
+            .module('ngClassifieds')
+            .controller('newClassifiedsCtrl', function ($mdSidenav,
+                $timeout, $mdDialog, classifiedsFactory) {
+
+            var vm = this;
+
+            $mdSidenav('left').open();
+            
+        })
+
+    })();
+```
+But this doesn't work.  We have to encapsulate `$mdSidenav.open` inside Angular's $timeout service.  The browsers event loop requires us to code this way.  Ryan does not go into detail why.  But this is what we do to fix it:
+```
+    (function () {
+
+        'use strict';
+
+        angular
+            .module('ngClassifieds')
+            .controller('newClassifiedsCtrl', function ($mdSidenav,
+                $timeout, $mdDialog, classifiedsFactory) {
+
+            var vm = this;
+
+            $timeout(function () {
+                $mdSidenav('left').open();
+            });
+
+    })();
+```

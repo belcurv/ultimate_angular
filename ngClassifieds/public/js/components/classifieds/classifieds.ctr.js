@@ -16,11 +16,9 @@
             vm.classifieds;
             vm.closeSidebar     = closeSidebar;
             vm.deleteClassified = deleteClassified;
-            vm.editing;
             vm.editClassified   = editClassified;
             vm.openSidebar      = openSidebar;
             vm.saveClassified   = saveClassified;
-            vm.saveEdit         = saveEdit;
             
 
             classifiedsFactory.getClassifieds()
@@ -63,21 +61,24 @@
             }
         
             function editClassified(classified) {
-                // vm.editing = true;             // used prior to ui-router
-                // openSidebar();                 // and separate controllers
-                // vm.classified = classified;    // and templates.
-
+                // == THE OLD WAY: used prior to ui-router ==
+                // vm.editing = true;
+                // openSidebar();
+                // vm.classified = classified;
+                
+                // ++ HOW RYAN'S GITHUB CODE DOES IT ==
+                // vm.editing = true;
+                // vm.sidebarTitle = 'Edit Classified';
+                // vm.classified = classified;
+                // $state.go('classifieds.edit', { id: classified.id, classified: classified });
+                
+                // == HOW HIS LECTURE TELLS US TO DO IT ==
+                vm.editing = true;
+                vm.classified = classified;
                 $state.go('classifieds.edit', {   // We pass an object to ui-router
                     id: classified.id,            // containing the id we want to edit,
                     classified: classified        // plus the whole classified
                 });
-            }
-        
-            function saveEdit() {
-                vm.editing = false;
-                vm.classified = {};
-                closeSidebar();
-                showToast('Edits saved');
             }
         
             function deleteClassified(event, classified) {

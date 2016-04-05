@@ -30,8 +30,8 @@
             }
         
             function saveEdit() {
-                $scope.$emit('editSaved', 'Edit saved!');
                 vm.sidenavOpen = false;
+                $scope.$emit('editSaved', 'Edit saved!');
             }
         
         });

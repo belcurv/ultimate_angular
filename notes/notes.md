@@ -140,14 +140,16 @@ Or a DIV with the attribute:
     <div ui-view></div>
 ```
 
-Then we use ui-sref to link to different view templates.  Like this
+*Browsing* to a specific state requires adding a hash and then the url of the route.  Using route 1 in the above example, you would input the URL directly into a browser like this: `www.exampledomain.com/#/urlOfState1`.
+
+Or we can add links to the page useing `ui-sref` to link to different states (and thus view templates).  Like this
 ```
     <md-button ui-sref="nameOfState1">Go to state 1.</md-button>
     <md-button ui-sref="nameOfState2">Go to state 2.</md-button>
     <ui-view></ui-view>
 ```
 
-And ui-router updated the URL in the browser, and inserts the template into the view.
+Clicking on one of the above tells ui-router to change states, update the URL in the browser address bar, and insert the template into the view.
 
 Ui-router gives us **nested states**.  Looks like this:
 
@@ -204,7 +206,7 @@ Using $scope is fine, but gets confusing once our app gets large and we have mul
 ```
 That's difficult to reason about.
 
-So instead we use a dotted object notation with _controller as_.  First we give the controller an **alias**, in this case: '_stateOneCtrl as **stateone**_'.  Then in the controller, instead of using _$state.message_, we bind the message to '_**this**.message_'.  Finally, in the template we prepend our variable with the controller alias '_**stateone**.message_':
+So instead we use a dotted object notation with **controller as**.  First we give the controller an **alias**, in this case: '_stateOneCtrl as **stateone**_'.  Then in the controller, instead of using _$state.message_, we bind the message to '_**this**.message_'.  Finally, in the template we prepend our variable with the controller alias '_**stateone**.message_':
 ```
     $stateProvider
         .state('one', {
@@ -219,10 +221,10 @@ So instead we use a dotted object notation with _controller as_.  First we give 
 ```
 Note that we no longer need to inject $scope into the controller.  This helps us avoid what's known as '$scope soup' in Angular.  Instead, we can be explicit about which controllers are attached to which properties in our templates.
 
-Taking it one step further, let's add a _capture variable_ in our controller:
+Taking it one step further, let's add a **capture variable** in our controller:
 ```
     .controller('stateOneCtrl', function () {
-        var vm = this;
+        var vm = this;     // <-- CAPTURE VARIABLE
         vm.message = 'Hey from state one!';
     });
 ```

@@ -1,3 +1,7 @@
+## Intro
+
+For the code to work in Section 8 (where we add ui-router), you **must** use ui-router version 0.2.x!  The newer 1.0 releases break the app.  That's why package.json includes "angular-ui-router": "^0.2.18"...
+
 ## What Problem is Angular trying to solve?
 
 SPAs aim for improved user experience, but building SPAs with plain javascript is hard.

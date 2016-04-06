@@ -1,23 +1,24 @@
 {
-  "name": "ng-classifieds",
-  "version": "0.0.1",
-  "description": "Test Classified App",
-  "main": "server.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/belcurv/ultimate_angular.git"
-  },
-  "author": "JRS",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/belcurv/ultimate_angular/issues"
-  },
-  "homepage": "https://github.com/belcurv/ultimate_angular#readme",
-  "dependencies": {
-    "express": "^4.13.4",
-    "morgan": "^1.7.0"
-  }
+    "name": "ng-classifieds",
+    "version": "0.0.1",
+    "description": "Test Classified App",
+    "main": "server.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/belcurv/ultimate_angular.git"
+    },
+    "author": "JRS",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/belcurv/ultimate_angular/issues"
+    },
+    "homepage": "https://github.com/belcurv/ultimate_angular#readme",
+    "dependencies": {
+        "express": "^4.13.4",
+        "morgan": "^1.7.0",
+        "angular-ui-router": "^0.2.18"
+    }
 }

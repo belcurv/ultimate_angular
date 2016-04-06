@@ -506,3 +506,28 @@ Then we need to grab the classified object from our ui-router state params and i
         vm.saveClassified = saveClassified;
         vm.classified = $state.params.classified;   // <- new!
 ```
+
+## Working with a real database
+
+First a bit about the $http service.  It's used to interact with other endpoints.  We can use common verbs like _get_ and _post_ in the way they're expected to work:
+```
+    $http.get('https://api.github.com/users').then(function(response) {
+        // get data
+        console.log(response);
+    });
+
+    $http.post('endpoint_url').then(function(argument) {
+        // save data
+    });
+    
+    $http.put('endpoint_url').then(function(argument) {
+        // update data
+    });
+    
+    $http.delete('endpoint_url').then(function(argument) {
+        // delete data
+    });
+```
+The methods return a promise, so they're always followed by one or more .then().
+
+This relies on a server

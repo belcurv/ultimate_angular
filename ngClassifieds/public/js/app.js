@@ -8,11 +8,13 @@ angular
     
     .module('ngClassifieds', ['ngMaterial', 'ui.router'])
     
-    .config(function ($mdThemingProvider, $stateProvider) {
+    .config(function ($mdThemingProvider, $stateProvider, $urlRouterProvider) {
     
         $mdThemingProvider.theme('default')
-            .primaryPalette('amber')
-            .accentPalette('brown');
+            .primaryPalette('teal')
+            .accentPalette('orange');
+    
+        $urlRouterProvider.otherwise('classifieds');
     
         $stateProvider
             .state('classifieds', {

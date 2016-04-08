@@ -76,6 +76,7 @@ For example, `$mdSidenav` which lets us control angular material's sidenav compo
 We just need to write some CSS that taps into some class hooks provided by Angular.
 
 Angular's main CSS hooks:
+
 1.  ng-enter
 2.  ng-move
 3.  ng-leave
@@ -83,24 +84,24 @@ Angular's main CSS hooks:
 We first add our own class to the elements we want to animate (the `<md-card>` that contains our looped classifieds).  We'll say `class="classified"`.  Then we add a bunch of CSS selectors:
 
 ```
-.classified.ng-enter, .classified.ng-move {
-    transition: 0.4s all;
-    opacity: 0;
-}
+    .classified.ng-enter, .classified.ng-move {
+        transition: 0.4s all;
+        opacity: 0;
+    }
 
-.classified.ng-enter.ng-enter-active, .classified.ng-move.ng-move-active {
-    opacity: 1;
-}
+    .classified.ng-enter.ng-enter-active, .classified.ng-move.ng-move-active {
+        opacity: 1;
+    }
 
-.classified.ng-leave {
-    animation: 0.4s fade_classified;
-    
-}
+    .classified.ng-leave {
+        animation: 0.4s fade_classified;
 
-@keyframes fade_classified {
-    from { opacity: 1; }
-    to { opacity: 0; }
-}
+    }
+
+    @keyframes fade_classified {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
 ```
 
 ## Routing
@@ -119,23 +120,26 @@ State based routing is more like a desktop application.  You might have a contac
 
 ui-router merges the concept of linking (like traditional sites) with the concept of different state within a SPA.
 
-ui-router gives us
+ui-router gives us `$stateProvider`, which lets us set up various states for the app.  Takes a method `.state()` which takes two arguments:
 
-1.  `$stateProvider` = lets us set up various states for the app.  Takes a method `.state` which takes two arguments: the 'name of the state', and a object of the state's properties.  Looks like this:
-    ```
-        $stateProvider
-            .state('nameOfState1', {
-                url: '/urlOfState1',
-                template: (or templateUrl: )
-            })
-            .state('nameOfState2', {
-                url: '/urlOfState2',
-                template: (or templateUrl: )
-            });
-        
-    ```
+1.  the 'name of the state', and
+2.  a object of the state's properties.
 
-The add the view placeholder, either as:
+Looks like this:
+```
+    $stateProvider
+        .state('nameOfState1', {
+            url: '/urlOfState1',
+            template: (or templateUrl: )
+        })
+        .state('nameOfState2', {
+            url: '/urlOfState2',
+            template: (or templateUrl: )
+        });
+
+```
+
+Then add the view placeholder, as either:
 ```
     <ui-view></ui-view>
 ```
@@ -144,20 +148,21 @@ Or a DIV with the attribute:
     <div ui-view></div>
 ```
 
-*Browsing* to a specific state requires adding a hash and then the url of the route.  Using route 1 in the above example, you would input the URL directly into a browser like this: `www.exampledomain.com/#/urlOfState1`.
+*Browsing* to a specific state requires adding a hash and then the url of the route.  Using route 1 in the above example, you would input the URL directly into a browser like this: www.exampledomain.com**/#/urlOfState1**.
 
 Or we can add links to the page useing `ui-sref` to link to different states (and thus view templates).  Like this
 ```
     <md-button ui-sref="nameOfState1">Go to state 1.</md-button>
     <md-button ui-sref="nameOfState2">Go to state 2.</md-button>
+    
     <ui-view></ui-view>
 ```
 
-Clicking on one of the above tells ui-router to change states, update the URL in the browser address bar, and insert the template into the view.
+Clicking on one of the above tells ui-router to change states, update the URL in the browser address bar, and insert the template into `<ui-view></ui-view>`.
 
-Ui-router gives us **nested states**.  Looks like this:
+**Nested States**
 
-In `app.js`:
+Ui-router gives us these too.  Looks like this in `app.js`:
 ```
     $stateProvider
         .state('one', {
@@ -166,11 +171,15 @@ In `app.js`:
         })
         .state('two', {
             url: '/statetwo',
-            template: '<h1>State Two</h1> <md-button ui-sref="two.more">Go to nested state</md-button><ui-view></ui-view>'
+            template: '<h1>State Two</h1>
+                        <md-button ui-sref="two.more">
+                            Go to nested state
+                        </md-button>
+                        <ui-view></ui-view>'
         })
         .state('two.more', {
             url: '/more',
-            template: '<p>This is teh deeper state.</p>'
+            template: '<p>This is the deeper state.</p>'
         });
 ```
 
@@ -180,6 +189,8 @@ Nothing changes in the view!  Because the new button to trigger the nested state
 ```
         
 You can see how this can be useful.
+
+**Controllers and States**
 
 Ui-router can attach different controllers to different states.  For example:
 ```
@@ -199,7 +210,7 @@ Ui-router can attach different controllers to different states.  For example:
 
 ## Switching to _Controller as_
 
-Using $scope is fine, but gets confusing once our app gets large and we have multiple controllers in play.  Often, controllers will have similar variables and methods.  You might have confusing-to-look-at view markup like this:
+Using $scope can get confusing once our app grows large and we have multiple controllers in play.  Often, controllers will have similar variables and methods.  You might have confusing-to-look-at view markup like this:
 ```
     <div ng-controller="ctrlOne">
         {{ message }}
@@ -210,18 +221,23 @@ Using $scope is fine, but gets confusing once our app gets large and we have mul
 ```
 That's difficult to reason about.
 
-So instead we use a dotted object notation with **controller as**.  First we give the controller an **alias**, in this case: '_stateOneCtrl as **stateone**_'.  Then in the controller, instead of using _$state.message_, we bind the message to '_**this**.message_'.  Finally, in the template we prepend our variable with the controller alias '_**stateone**.message_':
+So instead we use a dotted object notation with **controller as**:
+
+1.  First give each controller an **alias**, for example: '_stateOneCtrl as **stateone**_'
+2.  Then in the controller, instead of using _$state.message_, we bind the message to '_**this**.message_'
+3.  Finally, in the template we prepend our variable with the controller alias '_**stateone**.message_':
+
 ```
-    $stateProvider
-        .state('one', {
-            url: '/stateone',
-            template: '<h1>{{ stateone.message }}</h1>',
-            controller: 'stateOneCtrl as stateone'
-        });
-        
-    .controller('stateOneCtrl', function () {
-        this.message = 'Hey from state one!';
+$stateProvider
+    .state('one', {
+        url: '/stateone',
+        template: '<h1>{{ stateone.message }}</h1>',
+        controller: 'stateOneCtrl as stateone'
     });
+
+.controller('stateOneCtrl', function () {
+    this.message = 'Hey from state one!';
+});
 ```
 Note that we no longer need to inject $scope into the controller.  This helps us avoid what's known as '$scope soup' in Angular.  Instead, we can be explicit about which controllers are attached to which properties in our templates.
 
@@ -232,11 +248,11 @@ Taking it one step further, let's add a **capture variable** in our controller:
         vm.message = 'Hey from state one!';
     });
 ```
-We use `vm`, a popular capture variable that stands for 'view model'.
+It's common to use `vm`, a popular capture variable that stands for 'view model'.
 
 ## Refactoring our Classifieds App
 
-We'll start with one route:
+We'll start by adding a single route:
 ```
 angular
     
@@ -307,7 +323,7 @@ We'll butcher our previous index.html file...
 
 ## Refactoring New and Edit features
 
-We're going to add routes to states for adding new classifieds and editing existing classifieds.  We'll move the markup into separate templates and add controllers.
+We're going to add routes to _states_ for adding new classifieds and editing existing classifieds.  We'll move the markup into separate templates and add controllers.
 
 With nested states, Angular knows when a state name is a substate through dot notation:
 ```
@@ -327,19 +343,21 @@ With nested states, Angular knows when a state name is a substate through dot no
 
 Because there's new controllers, don't forget to include them when pulling in scripts in index.html.
 ```
-    <script src="js/components/classifieds/new/classifieds.new.ctr.js"></script>
+<script src="js/components/classifieds/new/classifieds.new.ctr.js"></script>
 ```
 
 Then, we have to inject a new ui-router service into our main controller: $state.  The $state service is responsible for representing states as well as transitioning between them.  Since we need to transition between classifieds and classifieds.new, we need to use $state.  
 
 We use it where we define the `openSidebar()` function.  Instead of having the button open the sidenav directly:
 ```
+    // the old way
     function openSidebar() {
         $mdSidenav('left').open();
     }
 ```
 ... we tell it to navigate to a new state (_classifieds.new_) when the button is clicked:
 ```
+    // the new way
     function openSidebar() {
         $state.go('classifieds.new');    
     }
@@ -349,9 +367,7 @@ And of course we have to write the new controller _newClassifiedsCtrl_:
 
 ```
     (function () {
-
         'use strict';
-
         angular
             .module('ngClassifieds')
             .controller('newClassifiedsCtrl', function ($mdSidenav,
@@ -365,7 +381,12 @@ And of course we have to write the new controller _newClassifiedsCtrl_:
 
     })();
 ```
-But this doesn't work.  We have to encapsulate `$mdSidenav.open` inside Angular's $timeout service.  The browsers event loop requires us to code this way.  Ryan does not go into detail why.  But this is what we do to fix it:
+But this doesn't work.  We have to encapsulate `$mdSidenav.open` inside Angular's $timeout service.  The browsers event loop requires us to code this way.  Ryan offered these two links for more detail:
+
+1.  Video: https://youtube.com/watch?v=8aGhZQkoFbQ
+2.  Test: https://github.com/getify/You-Dont-Know-JS/
+
+This is what we do to fix it:
 ```
     (function () {
 
@@ -378,6 +399,7 @@ But this doesn't work.  We have to encapsulate `$mdSidenav.open` inside Angular'
 
             var vm = this;
 
+            // the fix!
             $timeout(function () {
                 $mdSidenav('left').open();
             });
@@ -391,7 +413,7 @@ The .watch() method is a $scope feature that keeps a look out for changes to som
 
 Why are we using $scope again now that we're binding properties and methods directly to controllers (controll as)?  Because there are certain properties of the $scope object that are only available to us via the actual $scope object.  Because we're binding everything to the 'this' keyword, we really only use $scope for specific special features only it provides.
 
-We're going to set this up inside `newClassifiedsCtrl`.  Here's a demo example where we setup a watcher to log a message to the console if some value becomes equal to 2:
+We're going to set this up inside our newClassifieds controller.  Here's a demo example where we setup a watcher to log a message to the console if some value becomes equal to 2:
 ```
     (function () {
 
@@ -449,7 +471,7 @@ Our newClassifieds controller is a child of our main classidies controller, so w
 
 Our editClassifieds controller is also a child of main classifieds controller, but instead of using $scope.$broadcast (what I expected Ryan would suggest) we're going to use a feature of ui-router that lets us pass data from one route to another.  ui-router gives us the ability to send data through URL paramters.
 
-We provide these parameters as an object, the 2nd argument in the $state.go function:
+1.  First provide these parameters as an object - the 2nd argument in the $state.go function:
 ```
     function editClassified(classified) {
         $state.go('classifieds.edit', {
@@ -458,7 +480,7 @@ We provide these parameters as an object, the 2nd argument in the $state.go func
         });
     }
 ```
-Then we tweak the route slightly.  Since we want the URL to include the /id of the classified we want to edit, we append the variable `/:id` to the utl peroperty:
+2.  Then tweak the route slightly.  Since we want the URL to include the /id of the classified we want to edit, we append the variable `/:id` to the url property:
 ```
     .state('classifieds.edit', {
         url: '/edit/:id',
@@ -469,7 +491,8 @@ Then we tweak the route slightly.  Since we want the URL to include the /id of t
         }
     });
 ```
-Then we have to tweak the editClassifieds template - we need to append 'vm.' to our bound variables wherever we're using ng-model:
+
+3.  Then tweak the editClassifieds template - we need to append 'vm.' to our bound variables wherever we're using ng-model:
 ```
 <!-- INPUTS -->
     <div layout="column">
@@ -496,7 +519,8 @@ Then we have to tweak the editClassifieds template - we need to append 'vm.' to 
         </md-input-container>
     </div>
 ```
-Then we need to grab the classified object from our ui-router state params and include it in the editClassifieds controller:
+
+4.  Then grab the classified object from our ui-router state params and include it in the editClassifieds controller:
 ```
     .controller('editClassifiedsCtrl', function ($scope, $state,
         $mdSidenav, $timeout, $mdDialog, classifiedsFactory) {
@@ -528,9 +552,7 @@ First a bit about the $http service.  It's used to interact with other endpoints
         // delete data
     });
 ```
-The methods return a promise, so they're always followed by one or more .then().
-
-This relies on a server.  Instead of this, we're going to use Firebase: www.firebase.com.  It's both a real-time database AND a backed server.
+The methods return promises, so they're always followed by one or more .then().  These methods rely on a server.  Instead of this, we're going to use Firebase (https://www.firebase.com/).  It's both a real-time database AND a backed server.
 
 Include it from CDN:
 ```
@@ -544,8 +566,8 @@ To using it in our app, we just need to make some minor changes.
 
 First, inject the Firebase module in our app.js to gain access to all the Firebase methods/services:
 ```
-angular
-    .module('ngClassifieds', ['ngMaterial', 'ui.router', 'firebase'])
+    angular
+        .module('ngClassifieds', ['ngMaterial', 'ui.router', 'firebase'])
 ```
 
 We'll use **$firebaseArray** in our classifieds factory, in place of our fake $http.get() request.

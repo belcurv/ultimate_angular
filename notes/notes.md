@@ -530,4 +530,163 @@ First a bit about the $http service.  It's used to interact with other endpoints
 ```
 The methods return a promise, so they're always followed by one or more .then().
 
-This relies on a server
+This relies on a server.  Instead of this, we're going to use Firebase: www.firebase.com.  It's both a real-time database AND a backed server.
+
+Include it from CDN:
+```
+<!-- Firebase -->
+<script src="https://cdn.firebase.com/js/client/2.2.4/firebase.js"></script>
+<!-- AngularFire -->
+<script src="https://cdn.firebase.com/libs/angularfire/1.2.0/angularfire.min.js"></script>
+```
+
+To using it in our app, we just need to make some minor changes.
+
+First, inject the Firebase module in our app.js to gain access to all the Firebase methods/services:
+```
+angular
+    .module('ngClassifieds', ['ngMaterial', 'ui.router', 'firebase'])
+```
+
+We'll use **$firebaseArray** in our classifieds factory, in place of our fake $http.get() request.
+1.  First inject the $firebaseAray service,
+2.  then replace the old `getClassifieds()` method with a reference to our Firebase backend,
+3.  and finally return 'ref' - we make a Firebase array out of our Firebase reference:
+
+```
+function () {
+
+    'use strict';
+
+    angular.module('ngClassifieds')
+        .factory('classifiedsFactory', function ($http, $firebaseArray) {
+
+            // connect to our Firebase
+            var ref = new Firebase('https://jrs-ngclassifieds.firebaseio.com/');
+
+            return {
+                ref: $firebaseArray(ref)
+            };
+
+        });
+
+})();
+```
+
+**Temporary cool import feature**
+
+We can send our data from the app to Firebase.  Doing the import this way is the right way - it lets Firebase create hashed IDs for each item in the database (vs our fake 1, 2, 3, etc).
+
+1.  We first copy the whole JSON object in data/classifieds.json and paste it into our main controller,
+2.  Then hook up to Firebase (`var firebase = classifiedsFactory.ref;`),
+3.  Then loop over the array, storing each item in Firebase:
+
+```
+var data = [
+    {
+        // all the classifieds items
+    }
+];
+
+var firebase = classifiedsFactory.ref;
+
+angular.forEach(data, function (item) {
+    firebase.$add(item);
+});
+
+```
+The above is valid but breaks the app because our main controller is still looking for the `classifieds.getClassifieds()` method that we got rid of in our factory, so comment that all out and it will work.  Now all our items will appear in the Firebase app dashboard (https://jrs-ngclassifieds.firebaseio.com/).  We can now delete the above data array, var firebase, and forEach loop.  We only needed to use those once for the import.
+
+**Reading data**
+
+Easy, just point our main model at our Firebase via the classifieds factory:
+
+```
+    vm.classifieds = classifiedsFactory.ref;
+```
+
+**Fix the Filters List**
+
+We need to wait until all of our data has loaded, and then set our categories.  We do this with a Firebase method `$loaded()`:
+
+```
+    vm.classifieds.$loaded().then(function (classifieds) {
+        vm.categories = getCategories(classifieds);
+    });
+```
+
+**Adding Data**
+
+We'll use the $add() method again.  This one's simple.  In our newClassifieds controller, we emit a new classified event that our main controller catches with $on().  In our main controller, we only need to edit two lines:
+1.  We don't need to manually add an ID since Firebase issues its own IDs, so we can delete/comment that line, and
+2.  We $add() the classified to Firebase instead of pushing it onto our old array:
+
+```
+$scope.$on('newClassified', function (event, classified) {
+    // // Before Firebase we faked ID increment
+    // classified.id = vm.classifieds.length + 1;  
+
+    // Capture & store emitted classified from newClassifiedsCtrl
+    vm.classifieds.$add(classified);
+    showToast('Classified saved!');
+});
+```
+
+Becvause Firebase is a real-time data store, changes happen instantly.  Any users viewing the classified app see all changes immediately.
+
+**Editing Classifieds**
+
+A little more work.  The old way: editing just changed the data in the model and closed the side bar; obviously this won't persist through page reloads, etc.  With Firebase, we can persist changes.  
+
+In the main classifieds controller, instead of grabbing the param `id` we have to use `$id`.  `$id` lines up with the actual database item ID hash that Firebase creates:
+```
+    function editClassified(classified) {
+        vm.editing = true;
+        vm.classified = classified;
+        $state.go('classifieds.edit', {
+            id: classified.$id                    
+        });
+    }
+```
+
+Then in our editClassifieds controller, we
+1.  first get a reference to our Firebase, and
+2.  then use $getRecord to retrieve the specific item from the database:
+
+```
+vm.classifieds = classifiedsFactory.ref;
+vm.classified = vm.classifieds.$getRecord($state.params.id);
+```
+And down below in editClassifieds controller, in the `saveEdit()` function, we have to use $save() to actually store the changes.  Note that `$save()` returns a promise; we stick our `$emit()` and sidenav closer in there:
+
+```
+    function saveEdit() {
+        vm.classifieds.$save(vm.classified).then(function () {
+            $scope.$emit('editSaved', 'Edit saved!');
+            vm.sidenavOpen = false;
+        });
+    }
+```
+Now, the Firebase hashed ID appears in the URL when editing.  For example:
+localhost:3000/#/classifieds/edit/-KEnVjfZ-vvhvGgBQNri
+
+**Deleting Classifieds**
+
+Instead of splicing data out of our old array, we use the `$remove()` Firebase method:
+```
+    function deleteClassified(event, classified) {
+        var confirm = $mdDialog.confirm()
+            .title('Are you sure you want to delete ' + 
+            classified.title + '?')
+                .ok('Damn right!')
+                .cancel('Hell no!')
+                .targetEvent(event);
+            // show dialog, which takes our confirm, returns promise
+            $mdDialog.show(confirm).then(function () {
+                vm.classifieds.$remove(classified);     // <-- new!
+                showToast('Classified deleted!');
+            }, function () {
+                // trigger on 'cancel'
+            });
+    }
+```

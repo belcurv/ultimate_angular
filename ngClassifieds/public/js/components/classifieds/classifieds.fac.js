@@ -1,18 +1,16 @@
 (function () {
+    
     'use strict';
     
     angular.module('ngClassifieds')
-        .factory('classifiedsFactory', function ($http) {
+        .factory('classifiedsFactory', function ($http, $firebaseArray) {
             
-            function getClassifieds () {
-                return $http.get('data/classifieds.json');
-            }
+            var ref = new Firebase('https://jrs-ngclassifieds.firebaseio.com/');
         
             return {
-                getClassifieds: getClassifieds  // returns the getClassifieds method
-                                                // created above, as getClassifieds.
-            }
+                ref: $firebaseArray(ref)
+            };
             
-    });
+        });
     
 })();

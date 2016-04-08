@@ -7,9 +7,15 @@
         .controller('editClassifiedsCtrl', function ($scope, $state, $mdSidenav, $timeout, $mdDialog, classifiedsFactory) {
         
             var vm = this;
+        
+            // get a reference to our firebase
+            vm.classifieds = classifiedsFactory.ref;
+        
             vm.closeSidebar = closeSidebar;
             vm.saveEdit = saveEdit;
-            vm.classified = $state.params.classified;
+        
+            // use $getRecord Firebase method to retrieve the database record by id
+            vm.classified = vm.classifieds.$getRecord($state.params.id);
 
             $timeout(function () {
                 $mdSidenav('left').open();
@@ -30,8 +36,11 @@
             }
         
             function saveEdit() {
-                vm.sidenavOpen = false;
-                $scope.$emit('editSaved', 'Edit saved!');
+                // save the record
+                vm.classifieds.$save(vm.classified).then(function () {
+                    $scope.$emit('editSaved', 'Edit saved!');
+                    vm.sidenavOpen = false;
+                });
             }
         
         });

@@ -20,19 +20,16 @@
             vm.openSidebar      = openSidebar;
             vm.saveClassified   = saveClassified;
             
+            // connect to our Firebase reference
+            vm.classifieds = classifiedsFactory.ref;
+            
+            // wait until classifieds loads before populating filters list
+            vm.classifieds.$loaded().then(function (classifieds) {
+                vm.categories = getCategories(classifieds);
+            });
 
-            classifiedsFactory.getClassifieds()
-                .then(function (classifieds) {
-                    // populate classifies after async completes
-                    vm.classifieds = classifieds.data;
-                
-                    // populate categories after async completes
-                    vm.categories = getCategories(vm.classifieds);
-                });
-        
             $scope.$on('newClassified', function (event, classified) {
-                classified.id = vm.classifieds.length + 1;  // faking the ID for now...
-                vm.classifieds.push(classified);
+                vm.classifieds.$add(classified);
                 showToast('Classified saved!');
             });
         
@@ -65,19 +62,13 @@
                 // vm.editing = true;
                 // openSidebar();
                 // vm.classified = classified;
-                
-                // ++ HOW RYAN'S GITHUB CODE DOES IT ==
-                // vm.editing = true;
-                // vm.sidebarTitle = 'Edit Classified';
-                // vm.classified = classified;
-                // $state.go('classifieds.edit', { id: classified.id, classified: classified });
-                
-                // == HOW HIS LECTURE TELLS US TO DO IT ==
+
                 vm.editing = true;
                 vm.classified = classified;
                 $state.go('classifieds.edit', {   // We pass an object to ui-router
-                    id: classified.id,            // containing the id we want to edit,
-                    classified: classified        // plus the whole classified
+                    // containing the $id we want to edit.
+                    // We use $id now that we're using Firebase
+                    id: classified.$id                    
                 });
             }
         
@@ -96,11 +87,18 @@
                 // then we actually show the dialog, which takes our confim
                 // and returns a promise:
                 $mdDialog.show(confirm).then(function () {
-                    // trigger on 'yes': delete the classified.
-                    // first, find the index of the passed classified in our array
-                    var index = vm.classifieds.indexOf(classified);
-                    // then splice it out!
-                    vm.classifieds.splice(index, 1);
+                    // triggers on 'yes': delete the classified.
+                    
+                    // // old way, before Firebase. We had to find the index of
+                    // // the passed classified in our array:
+                    // var index = vm.classifieds.indexOf(classified);
+                    // // then splice it out!
+                    // vm.classifieds.splice(index, 1);
+                    
+                    // new way, using Firebase method $remove:
+                    vm.classifieds.$remove(classified);
+                    showToast('Classified deleted!');
+                    
                 }, function () {
                     // terigger on 'cancel'
                     
@@ -126,7 +124,7 @@
                 
                 return _.uniq(categories);
             }
-            
+                    
         });
     
 })();

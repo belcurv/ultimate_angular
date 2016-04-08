@@ -172,11 +172,7 @@ Ui-router gives us these too.  Looks like this in `app.js`:
         })
         .state('two', {
             url: '/statetwo',
-            template: '<h1>State Two</h1>
-                        <md-button ui-sref="two.more">
-                            Go to nested state
-                        </md-button>
-                        <ui-view></ui-view>'
+            template: '<h1>State Two</h1> <md-button ui-sref="two.more"> Go to nested state </md-button> <ui-view></ui-view>'
         })
         .state('two.more', {
             url: '/more',

@@ -60,7 +60,6 @@ Immediately Invoked Function Expressions.  Scopes all our javascript to the file
     
     'use strict';
     
-    
 })();
 ```
 
@@ -126,7 +125,8 @@ ui-router gives us `$stateProvider`, which lets us set up various states for the
 2.  a object of the state's properties.
 
 Looks like this:
-```
+
+```javascript
     $stateProvider
         .state('nameOfState1', {
             url: '/urlOfState1',
@@ -163,7 +163,8 @@ Clicking on one of the above tells ui-router to change states, update the URL in
 **Nested States**
 
 Ui-router gives us these too.  Looks like this in `app.js`:
-```
+
+```javascript
     $stateProvider
         .state('one', {
             url: '/stateone',
@@ -193,7 +194,8 @@ You can see how this can be useful.
 **Controllers and States**
 
 Ui-router can attach different controllers to different states.  For example:
-```
+
+```javascript
     $stateProvider
         .state('one', {
             url: '/stateone',
@@ -211,6 +213,7 @@ Ui-router can attach different controllers to different states.  For example:
 ## Switching to _Controller as_
 
 Using $scope can get confusing once our app grows large and we have multiple controllers in play.  Often, controllers will have similar variables and methods.  You might have confusing-to-look-at view markup like this:
+
 ```
     <div ng-controller="ctrlOne">
         {{ message }}
@@ -227,7 +230,7 @@ So instead we use a dotted object notation with **controller as**:
 2.  Then in the controller, instead of using _$state.message_, we bind the message to '_**this**.message_'
 3.  Finally, in the template we prepend our variable with the controller alias '_**stateone**.message_':
 
-```
+```javascript
 $stateProvider
     .state('one', {
         url: '/stateone',
@@ -242,22 +245,23 @@ $stateProvider
 Note that we no longer need to inject $scope into the controller.  This helps us avoid what's known as '$scope soup' in Angular.  Instead, we can be explicit about which controllers are attached to which properties in our templates.
 
 Taking it one step further, let's add a **capture variable** in our controller:
-```
+
+```javascript
     .controller('stateOneCtrl', function () {
         var vm = this;     // <-- CAPTURE VARIABLE
         vm.message = 'Hey from state one!';
     });
 ```
+
 It's common to use `vm`, a popular capture variable that stands for 'view model'.
 
 ## Refactoring our Classifieds App
 
 We'll start by adding a single route:
-```
+
+```javascript
 angular
-    
     .module('ngClassifieds', ['ngMaterial', 'ui.router'])
-    
     .config(function ($mdThemingProvider, $stateProvider) {
     
         $mdThemingProvider.theme('default')
@@ -280,17 +284,22 @@ We'll butcher our previous index.html file...
 2.  We'll cut/paste everything in between the `<body>` tags except for the `<script>` calls, inserting it into our new template: `js/components/classifieds/classifieds.tpl.html` (this is an odd location, but whatever)
 3.  Then add `<ui-view></ui-view>` elements to index.html.
 4.  Then we hack our controller apart to employ capture variable:
-    ```
+    
+    ```javascript
         var vm = this;
     ```
+
 5.  Best practice for controllers is to declare all of object (vm) members up top pointing to functions and properties down below.  For example, instead of attaching methods to $scope like this:
-    ```
+    
+    ```javascript
         $scope.closeSidebar = function () {
             $mdSidenav('left').close();
         };
     ```
+    
     We will now do this:
-    ```
+    
+    ```javascript
         // up top...
         vm.closeSidebar = closeSidebar;
         
@@ -299,8 +308,10 @@ We'll butcher our previous index.html file...
             $mdSidenav('left').close();
         };
     ```
+    
     This makes it very easy to see what our controllers are doing.  Right up top is a list!
-    ```
+    
+    ```javascript
         .controller('classifiedsCtrl', function ($http,
         classifiedsFactory, $mdSidenav, $mdToast, $mdDialog) {
         
@@ -326,7 +337,8 @@ We'll butcher our previous index.html file...
 We're going to add routes to _states_ for adding new classifieds and editing existing classifieds.  We'll move the markup into separate templates and add controllers.
 
 With nested states, Angular knows when a state name is a substate through dot notation:
-```
+
+```javascript
     $stateProvider
         .state('classifieds', {
             url: '/classifieds',
@@ -342,21 +354,26 @@ With nested states, Angular knows when a state name is a substate through dot no
 ```
 
 Because there's new controllers, don't forget to include them when pulling in scripts in index.html.
+
 ```
 <script src="js/components/classifieds/new/classifieds.new.ctr.js"></script>
+
 ```
 
 Then, we have to inject a new ui-router service into our main controller: $state.  The $state service is responsible for representing states as well as transitioning between them.  Since we need to transition between classifieds and classifieds.new, we need to use $state.  
 
 We use it where we define the `openSidebar()` function.  Instead of having the button open the sidenav directly:
-```
+
+```javascript
     // the old way
     function openSidebar() {
         $mdSidenav('left').open();
     }
 ```
+
 ... we tell it to navigate to a new state (_classifieds.new_) when the button is clicked:
-```
+
+```javascript
     // the new way
     function openSidebar() {
         $state.go('classifieds.new');    
@@ -365,7 +382,7 @@ We use it where we define the `openSidebar()` function.  Instead of having the b
 
 And of course we have to write the new controller _newClassifiedsCtrl_:
 
-```
+```javascript
     (function () {
         'use strict';
         angular
@@ -381,13 +398,15 @@ And of course we have to write the new controller _newClassifiedsCtrl_:
 
     })();
 ```
+
 But this doesn't work.  We have to encapsulate `$mdSidenav.open` inside Angular's $timeout service.  The browsers event loop requires us to code this way.  Ryan offered these two links for more detail:
 
 1.  Video: https://youtube.com/watch?v=8aGhZQkoFbQ
 2.  Test: https://github.com/getify/You-Dont-Know-JS/
 
 This is what we do to fix it:
-```
+
+```javascript
     (function () {
 
         'use strict';
@@ -414,7 +433,8 @@ The .watch() method is a $scope feature that keeps a look out for changes to som
 Why are we using $scope again now that we're binding properties and methods directly to controllers (controll as)?  Because there are certain properties of the $scope object that are only available to us via the actual $scope object.  Because we're binding everything to the 'this' keyword, we really only use $scope for specific special features only it provides.
 
 We're going to set this up inside our newClassifieds controller.  Here's a demo example where we setup a watcher to log a message to the console if some value becomes equal to 2:
-```
+
+```javascript
     (function () {
 
         'use strict';
@@ -452,7 +472,8 @@ We're going to set this up inside our newClassifieds controller.  Here's a demo 
 How can we communicate date between separate controllers?  Again we will use some Angular $scope features.
 
 **$scope.$on** - This is basically a listener.  Invocations look like this:
-```
+
+```javascript
     $scope.$on('myMessage', function(event, message) {
         console.log(message);
     })
@@ -472,16 +493,19 @@ Our newClassifieds controller is a child of our main classidies controller, so w
 Our editClassifieds controller is also a child of main classifieds controller, but instead of using $scope.$broadcast (what I expected Ryan would suggest) we're going to use a feature of ui-router that lets us pass data from one route to another.  ui-router gives us the ability to send data through URL paramters.
 
 1.  First provide these parameters as an object - the 2nd argument in the $state.go function:
-```
+
+    ```javascript
     function editClassified(classified) {
         $state.go('classifieds.edit', {
             id: classified.id,
             classified: classified
         });
     }
-```
+    ```
+
 2.  Then tweak the route slightly.  Since we want the URL to include the /id of the classified we want to edit, we append the variable `/:id` to the url property:
-```
+
+    ```javascript
     .state('classifieds.edit', {
         url: '/edit/:id',
         templateUrl: 'js/components/classifieds/edit/classifieds.edit.tpl.html',
@@ -490,38 +514,39 @@ Our editClassifieds controller is also a child of main classifieds controller, b
             classified: null     // initialize this parameter as null
         }
     });
-```
+    ```
 
 3.  Then tweak the editClassifieds template - we need to append 'vm.' to our bound variables wherever we're using ng-model:
-```
-<!-- INPUTS -->
-    <div layout="column">
-        <md-input-container>
-            <label for="title">Title</label>
-            <input type="text" id="title"
-                   ng-model="vm.classified.title"
-                   md-autofocus>
-        </md-input-container>
-        <md-input-container>
-            <label for="price">Price</label>
-            <input type="text" id="price"
-                   ng-model="vm.classified.price">
-        </md-input-container>
-        <md-input-container>
-            <label for="description">Description</label>
-            <input type="text" id="description"
-                   ng-model="vm.classified.description">
-        </md-input-container>
-        <md-input-container>
-            <label for="image">Image Link</label>
-            <input type="text" id="image"
-                   ng-model="vm.classified.image">
-        </md-input-container>
-    </div>
-```
+    ```
+    <!-- INPUTS -->
+        <div layout="column">
+            <md-input-container>
+                <label for="title">Title</label>
+                <input type="text" id="title"
+                       ng-model="vm.classified.title"
+                       md-autofocus>
+            </md-input-container>
+            <md-input-container>
+                <label for="price">Price</label>
+                <input type="text" id="price"
+                       ng-model="vm.classified.price">
+            </md-input-container>
+            <md-input-container>
+                <label for="description">Description</label>
+                <input type="text" id="description"
+                       ng-model="vm.classified.description">
+            </md-input-container>
+            <md-input-container>
+                <label for="image">Image Link</label>
+                <input type="text" id="image"
+                       ng-model="vm.classified.image">
+            </md-input-container>
+        </div>
+    ```
 
 4.  Then grab the classified object from our ui-router state params and include it in the editClassifieds controller:
-```
+
+    ```javascript
     .controller('editClassifiedsCtrl', function ($scope, $state,
         $mdSidenav, $timeout, $mdDialog, classifiedsFactory) {
 
@@ -529,12 +554,13 @@ Our editClassifieds controller is also a child of main classifieds controller, b
         vm.closeSidebar = closeSidebar;
         vm.saveClassified = saveClassified;
         vm.classified = $state.params.classified;   // <- new!
-```
+    ```
 
 ## Working with a real database
 
 First a bit about the $http service.  It's used to interact with other endpoints.  We can use common verbs like _get_ and _post_ in the way they're expected to work:
-```
+
+```javascript
     $http.get('https://api.github.com/users').then(function(response) {
         // get data
         console.log(response);
@@ -552,9 +578,11 @@ First a bit about the $http service.  It's used to interact with other endpoints
         // delete data
     });
 ```
+
 The methods return promises, so they're always followed by one or more .then().  These methods rely on a server.  Instead of this, we're going to use Firebase (https://www.firebase.com/).  It's both a real-time database AND a backed server.
 
 Include it from CDN:
+
 ```
 <!-- Firebase -->
 <script src="https://cdn.firebase.com/js/client/2.2.4/firebase.js"></script>
@@ -565,7 +593,8 @@ Include it from CDN:
 To using it in our app, we just need to make some minor changes.
 
 First, inject the Firebase module in our app.js to gain access to all the Firebase methods/services:
-```
+
+```javascript
     angular
         .module('ngClassifieds', ['ngMaterial', 'ui.router', 'firebase'])
 ```
@@ -575,7 +604,7 @@ We'll use **$firebaseArray** in our classifieds factory, in place of our fake $h
 2.  then replace the old `getClassifieds()` method with a reference to our Firebase backend,
 3.  and finally return 'ref' - we make a Firebase array out of our Firebase reference:
 
-```
+```javascript
 function () {
 
     'use strict';
@@ -603,7 +632,7 @@ We can send our data from the app to Firebase.  Doing the import this way is the
 2.  Then hook up to Firebase (`var firebase = classifiedsFactory.ref;`),
 3.  Then loop over the array, storing each item in Firebase:
 
-```
+```javascript
 var data = [
     {
         // all the classifieds items
@@ -617,13 +646,14 @@ angular.forEach(data, function (item) {
 });
 
 ```
+
 The above is valid but breaks the app because our main controller is still looking for the `classifieds.getClassifieds()` method that we got rid of in our factory, so comment that all out and it will work.  Now all our items will appear in the Firebase app dashboard (https://jrs-ngclassifieds.firebaseio.com/).  We can now delete the above data array, var firebase, and forEach loop.  We only needed to use those once for the import.
 
 **Reading data**
 
 Easy, just point our main model at our Firebase via the classifieds factory:
 
-```
+```javascript
     vm.classifieds = classifiedsFactory.ref;
 ```
 
@@ -631,7 +661,7 @@ Easy, just point our main model at our Firebase via the classifieds factory:
 
 We need to wait until all of our data has loaded, and then set our categories.  We do this with a Firebase method `$loaded()`:
 
-```
+```javascript
     vm.classifieds.$loaded().then(function (classifieds) {
         vm.categories = getCategories(classifieds);
     });
@@ -643,7 +673,7 @@ We'll use the $add() method again.  This one's simple.  In our newClassifieds co
 1.  We don't need to manually add an ID since Firebase issues its own IDs, so we can delete/comment that line, and
 2.  We $add() the classified to Firebase instead of pushing it onto our old array:
 
-```
+```javascript
 $scope.$on('newClassified', function (event, classified) {
     // // Before Firebase we faked ID increment
     // classified.id = vm.classifieds.length + 1;  
@@ -661,7 +691,8 @@ Becvause Firebase is a real-time data store, changes happen instantly.  Any user
 A little more work.  The old way: editing just changed the data in the model and closed the side bar; obviously this won't persist through page reloads, etc.  With Firebase, we can persist changes.  
 
 In the main classifieds controller, instead of grabbing the param `id` we have to use `$id`.  `$id` lines up with the actual database item ID hash that Firebase creates:
-```
+
+```javascript
     function editClassified(classified) {
         vm.editing = true;
         vm.classified = classified;
@@ -675,13 +706,14 @@ Then in our editClassifieds controller, we
 1.  first get a reference to our Firebase, and
 2.  then use $getRecord to retrieve the specific item from the database:
 
-```
+```javascript
 vm.classifieds = classifiedsFactory.ref;
 vm.classified = vm.classifieds.$getRecord($state.params.id);
 ```
+
 And down below in editClassifieds controller, in the `saveEdit()` function, we have to use $save() to actually store the changes.  Note that `$save()` returns a promise; we stick our `$emit()` and sidenav closer in there:
 
-```
+```javascript
     function saveEdit() {
         vm.classifieds.$save(vm.classified).then(function () {
             $scope.$emit('editSaved', 'Edit saved!');
@@ -689,13 +721,15 @@ And down below in editClassifieds controller, in the `saveEdit()` function, we h
         });
     }
 ```
+
 Now, the Firebase hashed ID appears in the URL when editing.  For example:
 localhost:3000/#/classifieds/edit/-KEnVjfZ-vvhvGgBQNri
 
 **Deleting Classifieds**
 
 Instead of splicing data out of our old array, we use the `$remove()` Firebase method:
-```
+
+```javascript
     function deleteClassified(event, classified) {
         var confirm = $mdDialog.confirm()
             .title('Are you sure you want to delete ' + 

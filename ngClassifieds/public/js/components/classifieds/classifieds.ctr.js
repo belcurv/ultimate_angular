@@ -68,7 +68,7 @@
                 $state.go('classifieds.edit', {   // We pass an object to ui-router
                     // containing the $id we want to edit.
                     // We use $id now that we're using Firebase
-                    id: classified.$id                    
+                    id: classified.$id
                 });
             }
         

@@ -742,3 +742,47 @@ Instead of splicing data out of our old array, we use the `$remove()` Firebase m
             });
     }
 ```
+
+## Directives
+
+Isolate scope.
+1.  We create isolation with a scope object within the directive declaration object.
+2.  Then we pass data into the directive's scope via attributes on the new directive elements in the view.
+
+```javascript
+/* javascript */
+var app = angular.module("app", []);
+
+app.controller("myController", function($scope) {
+  $scope.myMessage = "Hello!";
+  $scope.myOtherMessage = "Goodbye!";
+});
+
+app.directive("helloMessage", function() {
+  return {
+    scope: {
+      message: '=message'
+    },
+    template: '<h1> {{ message }} </h1>'
+  };
+});
+```
+
+```
+<!-- in the view -->
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.0/angular.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>JS Bin</title>
+</head>
+<body ng-controller="myController">
+  <hello-message message="myMessage"></hello-message>
+  <hello-message message="myOtherMessage"></hello-message>
+</body>
+</html>
+```
+
+As above, using attributes (`message="myMessage"`) allows us to reuse the directive multiple times, passing in different data each time.

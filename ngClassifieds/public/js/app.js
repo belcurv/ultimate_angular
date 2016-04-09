@@ -16,7 +16,7 @@
                 .primaryPalette('teal')
                 .accentPalette('orange');
 
-            $urlRouterProvider.otherwise('classifieds');
+            $urlRouterProvider.otherwise('/classifieds');
 
             $stateProvider
                 .state('classifieds', {

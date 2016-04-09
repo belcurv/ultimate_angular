@@ -50,13 +50,16 @@
             }];
         
             return {
-                templateUrl: "js/components/classifieds/card/classified-card.tpl.html",
+                templateUrl: 'js/components/classifieds/card/classified-card.tpl.html',
                 scope: {
-                    classifieds: "=classifieds"
+                    classifieds: '=classifieds',
+                    classifiedsFilter: '=searchFilter',
+                    category: '=categoryFilter'
                 },
                 controller: classifiedCardController,
                 controllerAs: 'vm'
             };
+        
         });
         
 })();

@@ -786,3 +786,138 @@ app.directive("helloMessage", function() {
 ```
 
 As above, using attributes (`message="myMessage"`) allows us to reuse the directive multiple times, passing in different data each time.
+
+### Two Ways to Create Controllers for Directives
+
+Both of these methods work, and _**both** cause angular-material.js to throw an error_ in the browser's console (unreachable code after return statement).  The page works, though!?  Dan Wahlin's method offends jsLint less, so we'll favor it.
+
+Ryan tacks the controller on as a function after returning the directive object:
+
+```javascript
+(function () {
+    
+    'use strict';
+    
+    angular
+    
+        .module("ngClassifieds")
+    
+        .directive("classifiedCard", function () {
+
+            return {
+                templateUrl: "js/components/classifieds/card/classified-card.tpl.html",
+                scope: {
+                    classifieds: "=classifieds"
+                },
+                controller: classifiedCardController,
+                controllerAs: 'vm'
+            }
+            
+            function classifiedCardController($scope, $state, $mdDialog) {
+                
+                var vm = this;
+                
+                vm.editClassified = editClassified;
+                vm.deleteClassified = deleteClassified;
+                
+                function editClassified(classified) {
+                    vm.editing = true;
+                    vm.classified = classified;
+                    $state.go('classifieds.edit', {
+                        id: classified.$id
+                    });
+                }
+        
+                function deleteClassified(event, classified) {
+                    var confirm = $mdDialog.confirm()
+                        .title('Are you sure you want to delete ' + classified.title + '?')
+                        .ok('Damn right!')
+                        .cancel('Fuck no!')
+                        .targetEvent(event);
+
+                    $mdDialog.show(confirm).then(function () {
+                        vm.classifieds.$remove(classified);
+                        showToast('Classified deleted!');
+
+                    }, function () {
+                        // fires on 'cancel'
+                    });
+                }
+
+                function showToast(message) {
+                    $mdToast.show(
+                        $mdToast.simple()
+                            .content(message)
+                            .position('top right')
+                            .hideDelay(3000)
+                    );
+                }
+            };
+        
+        });
+        
+})();
+```
+
+Dan Wahlin uses a slightly different method, defining the controller as a variable before returning the directive declaration object (http://weblogs.asp.net/dwahlin/creating-custom-angularjs-directives-part-6-using-controllers):
+
+```javascript
+(function () {
+    
+    'use strict';
+    
+    angular
+        .module('moduleName')
+        .directive('directiveName', function () {
+
+            var controllerName = ['$scope', '$state', '$mdDialog', function ($scope, $state, $mdDialog) {
+                
+                vm.editClassified = editClassified;
+                vm.deleteClassified = deleteClassified;
+                
+                function editClassified(classified) {
+                    vm.editing = true;
+                    vm.classified = classified;
+                    $state.go('classifieds.edit', {
+                        id: classified.$id
+                    });
+                }
+        
+                function deleteClassified(event, classified) {
+                    var confirm = $mdDialog.confirm()
+                        .title('Are you sure you want to delete ' + classified.title + '?')
+                        .ok('Damn right!')
+                        .cancel('Fuck no!')
+                        .targetEvent(event);
+
+                    $mdDialog.show(confirm).then(function () {
+                        vm.classifieds.$remove(classified);
+                        showToast('Classified deleted!');
+
+                    }, function () {
+                        // fires on 'cancel'
+                    });
+                }
+
+                function showToast(message) {
+                    $mdToast.show(
+                        $mdToast.simple()
+                            .content(message)
+                            .position('top right')
+                            .hideDelay(3000)
+                    );
+                }
+            }];
+        
+            return {
+                templateUrl: "js/components/classifieds/card/classified-card.tpl.html",
+                scope: {
+                    classifieds: "=classifieds"
+                },
+                controller: classifiedCardController,
+                controllerAs: 'vm'
+            };
+        });
+        
+})();
+```

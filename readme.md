@@ -1,3 +1,3 @@
 ## What is this?
 
-Just notes and code for the Udemy Ultimate Angular course.
+Notes and code for the Udemy Ultimate Angular course.  See notes in respective subfolders.

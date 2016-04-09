@@ -39,3 +39,4 @@ Although we can use javascript, we're going to use TypeScript.  We begin with a 
 
 https://github.com/pkozlowski-opensource/ng2-play
 
+Holy shit Ryan goes over this quick.  Major forgettable crash course in Angular 2.

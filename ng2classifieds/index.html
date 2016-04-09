@@ -3,12 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <title>Angular2 playground</title>
+    
+    <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    
 </head>
 
 <body>
-    <hello-app>Loading...</hello-app>
+    <nav class="navbar navbar-default">
+        <div class="navbar-header">
+            <a href="#" class="navbar-brand">Angular2 Classifieds</a>
+        </div>
+    </nav>
+    <div class="container">
+        <app>Loading...</app>
+    </div>
 </body>
 
+    
+<!-- Firebase -->
+<script src="https://cdn.firebase.com/js/client/2.4.2/firebase.js"></script>
+    
 <!-- ES6-related imports -->
 <script src="/node_modules/angular2/bundles/angular2-polyfills.js"></script>
 <script src="/node_modules/es6-shim/es6-shim.min.js"></script>
@@ -21,7 +36,7 @@
 <script src="/node_modules/angular2/bundles/angular2.js"></script>
 <script>
     //bootstrap the Angular2 application
-    System.import('dist/hello').catch(console.log.bind(console));
+    System.import('dist/app').catch(console.log.bind(console));
 </script>
 
 </html>
